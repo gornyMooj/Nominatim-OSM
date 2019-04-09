@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+
+<title>Nominatim - OSM</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Lato|Oswald" rel="stylesheet">
+
+<style>
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+    background-color: #caebca;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+    font-family: 'Lato', sans-serif;
+}
+
+#info-box {
+    background-color: white;
+    z-index: 900;
+    position: absolute;
+    top:0;
+    left:52px;
+
+}
+
+</style>
+<body>
+
+<div id="map"></div>
+<pre id="info-box"></pre>
+
+
+
+<script>
+    const infoBox = document.getElementById('info-box');
+
+    let map = L.map('map').setView([53.3498, -6.2603], 10);
+    let Thunderforest_Outdoors = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+
+    Thunderforest_Outdoors.addTo(map);
+
+    function onMapClick(e) {
+            let nominatimURL = 'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + e.latlng.lat + '&lon=' + e.latlng.lng + '&zoom=18&addressdetails=1';
+
+            fetch(nominatimURL)
+                .then(res => res.json())
+                .then((data) => {
+                    infoBox.style.display = 'block';
+                    infoBox.innerHTML = '';
+                    infoBox.innerHTML = JSON.stringify(data, undefined, 2);
+            })
+            .catch(err => { throw err });     
+    };
+
+    infoBox.style.display = 'none';
+    map.on('click', onMapClick);
+    map.on('move', ()=>{
+        infoBox.style.display = 'none';
+    });
+ 
+</script>
+</body>
+</html>
+
